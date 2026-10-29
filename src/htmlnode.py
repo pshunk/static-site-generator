@@ -19,6 +19,9 @@ class HTMLNode:
             string += f' {key}="{self.props[key]}"'
         return string
 
+    def __eq__(self, other: HTMLNode) -> bool:
+        return self.tag == other.tag and self.value == other.value and self.children == other.children and self.props == other.props
+
     def __repr__(self) -> str:
         return f"HTMLNode({self.tag}, {self.value}, {self.children}, {self.props})"
 
@@ -53,3 +56,4 @@ class ParentNode(HTMLNode):
         for child in self.children:
             string += child.to_html()
         return f"<{self.tag}>{string}</{self.tag}>"
+

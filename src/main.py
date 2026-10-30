@@ -1,17 +1,21 @@
 import os
+import sys
 import shutil
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode
 from functions import markdown_to_html_node
 
 SOURCE_DIRECTORY = "./static"
-DESTINATION_DIRECTORY = "./public"
+DESTINATION_DIRECTORY = "./docs"
 CONTENT_DIRECTORY = "./content"
 TEMPLATE = "./template.html"
 
 def main() -> None:
+    print("hello")
+    basepath = "/" if len(sys.argv) <= 1 else sys.argv[1]
+    print(basepath)
     copy_files()
-    generate_pages_recursive(os.path.abspath(CONTENT_DIRECTORY), os.path.abspath(TEMPLATE), os.path.abspath(DESTINATION_DIRECTORY))
+    generate_pages_recursive(os.path.abspath(CONTENT_DIRECTORY), os.path.abspath(TEMPLATE), os.path.abspath(DESTINATION_DIRECTORY), basepath)
     return
 
 def copy_files() -> None:
@@ -34,7 +38,7 @@ def extract_title(markdown: str) -> str:
             return line[2:].strip()
     raise Exception("Error: markdown does not have an h1 header")
 
-def generate_page(from_path: str, template_path: str, dest_path: str) -> None:
+def generate_page(from_path: str, template_path: str, dest_path: str, basepath: str) -> None:
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
     try:
         markdown_file = open(from_path)
@@ -48,19 +52,21 @@ def generate_page(from_path: str, template_path: str, dest_path: str) -> None:
         title: str = extract_title(markdown)
         template = template.replace("{{ Title }}", title)
         template = template.replace("{{ Content }}", html)
+        template = template.replace('href="/', f'href="{basepath}')
+        template = template.replace('src="/', f'src="{basepath}')
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
         with open(dest_path, mode="x") as file:
             file.write(template)
     except Exception as e:
         print(f"Error: {e}")
 
-def generate_pages_recursive(content_dir_path: str, template_path: str, dest_dir_path: str) -> None:
+def generate_pages_recursive(content_dir_path: str, template_path: str, dest_dir_path: str, basepath: str) -> None:
     for file in os.listdir(content_dir_path):
         filepath = os.path.join(content_dir_path, file)
         if os.path.isfile(filepath) and file.endswith(".md"):
             file = file[:-2] + "html"
-            generate_page(filepath, template_path, os.path.join(dest_dir_path, file))
+            generate_page(filepath, template_path, os.path.join(dest_dir_path, file), basepath)
         elif os.path.isdir(filepath):
-            generate_pages_recursive(filepath, template_path, os.path.join(dest_dir_path, file))
+            generate_pages_recursive(filepath, template_path, os.path.join(dest_dir_path, file), basepath)
 
 main()

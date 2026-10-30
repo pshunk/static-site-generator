@@ -73,11 +73,10 @@ def get_parent(block: str) -> HTMLNode:
             return ParentNode("pre", [leaf])
         case BlockType.QUOTE:
             leaf_nodes = []
-            lines = text.split("\n")
-            for line in lines:
-                text_nodes = text_to_text_nodes(line)
-                for text_node in text_nodes:
-                    leaf_nodes.append(text_node_to_html_node(text_node))
+            replaced_text = text.replace("\n", "<br>")
+            text_nodes = text_to_text_nodes(replaced_text)
+            for text_node in text_nodes:
+                leaf_nodes.append(text_node_to_html_node(text_node))
             return ParentNode("blockquote", leaf_nodes)
         case BlockType.UNORDERED_LIST:
             lines = text.split("\n")
@@ -110,9 +109,9 @@ def block_to_text(block: str, type: BlockType) -> str:
             return "\n".join(block.split("\n")[1:-1])
         case BlockType.QUOTE:
             return "\n".join(list(map(lambda x:
-                            x[2:] if x[1] == " " else x[1:],
+                            "" if len(x) < 3 else x[2:] if x[1] == " " else x[1:],
                             block.split("\n"))))
         case BlockType.UNORDERED_LIST:
-            return "\n".join(list(map(lambda x: x[2:], block.split("\n"))))
+            return "\n".join(list(map(lambda x: "" if len(x) < 3 else x[2:], block.split("\n"))))
         case BlockType.ORDERED_LIST:
             return "\n".join(list(map(lambda x: " ".join(x.split(" ")[1:]), block.split("\n"))))

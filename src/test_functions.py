@@ -73,6 +73,9 @@ This is the same paragraph on a new line
     def test_block_to_text_quote(self):
         self.assertEqual(block_to_text("> This\n>is\n> a\n>quote", BlockType.QUOTE), "This\nis\na\nquote")
 
+    def test_block_to_text_quote_tolkien(self):
+        self.assertEqual(block_to_text('> "I am in fact a Hobbit in all but size."\n>\n> -- J.R.R. Tolkien', BlockType.QUOTE), '"I am in fact a Hobbit in all but size."\n\n-- J.R.R. Tolkien')
+
     def test_block_to_text_unordered(self):
         self.assertEqual(block_to_text("- This\n- is\n- an\n- unordered list", BlockType.UNORDERED_LIST), "This\nis\nan\nunordered list")
 
@@ -93,7 +96,7 @@ This is the same paragraph on a new line
 
     def test_get_parent_quote(self):
         parent = get_parent("> This is\n> a quote")
-        self.assertEqual(parent, ParentNode("blockquote", [LeafNode(None, "This is"), LeafNode(None, "a quote")]))
+        self.assertEqual(parent, ParentNode("blockquote", [LeafNode(None, "This is<br>a quote")]))
 
     def test_get_parent_unordered(self):
         parent = get_parent("- This is\n- an unordered list")
